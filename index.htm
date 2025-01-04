@@ -1,0 +1,23 @@
+<!doctype html>
+
+<head>
+    <title>Decrypt Home Assistant backups</title>
+    <script src="hadecrypt.js"></script>
+    <style type="text/css">
+        body {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="font-size:1em">Decrypt Home Assistant backups</h1>
+    Select one or more .tar.gz files from an encrypted Home Assistant backup (untar first!), eg
+    homeassistant.tar.gz:<br>
+    <input type="file" id="filepicker" multiple>
+    <br><br>
+    Enter your encryption key: <input type="text" id="encryptionkey"><br>
+    <button onclick="processFiles(filepicker.files, encryptionkey.value.trim())">Go!</button>
+    <hr>
+    <p id="status"></p>
+</body>
