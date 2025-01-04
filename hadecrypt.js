@@ -35,7 +35,7 @@ async function processFile(file, keyInput) {
         // Decompress in chunks to avoid loading the whole file in memory.
         // WebCrypto code based on https://stackoverflow.com/a/75839277.
         let index = 0;
-        let cbcRand, iv;
+        let iv = null;
         let availableData = new Uint8Array();
         while (true) {
             let availableBytes = availableData.length;
@@ -57,10 +57,11 @@ async function processFile(file, keyInput) {
                 });
                 availableData = buf;
             }
-            if (index === 0) {
-                cbcRand = availableData.slice(0, 16);
+            if (index === 0 && iv === null) {
+                const cbcRand = availableData.slice(0, 16);
                 availableData = availableData.slice(16);
                 iv = await generateIV(keyRaw, cbcRand);
+                continue;
             }
 
             if (index === numChunks - 1) {
