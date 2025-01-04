@@ -29,7 +29,7 @@ async function processFile(file, keyInput) {
         const writable = await handle.createWritable();
 
         const blocksize = 16;
-        const chunkSize = 64 * 1024 * blocksize; // 1 MB
+        const chunkSize = 4 * 1024 * 1024; // 4 MB
         const numChunks = Math.ceil((file.size - 16) / chunkSize);
 
         // Decompress in chunks to avoid loading the whole file in memory.
@@ -74,8 +74,10 @@ async function processFile(file, keyInput) {
             const chunk = availableData.slice(0, chunkSize);
             const lastCiphertextBlock = chunk.slice(-blocksize);
             const padCiphertextBlock = await crypto.subtle.encrypt({ name: 'AES-CBC', iv: lastCiphertextBlock }, key, new Uint8Array());
-            const fullCiphertextChunk = new Uint8Array([...chunk, ...new Uint8Array(padCiphertextBlock)]);
-            const unencrypted = await crypto.subtle.decrypt({ name: 'AES-CBC', iv: iv }, key, fullCiphertextChunk);
+            const fullChunk = new Uint8Array(chunk.byteLength + padCiphertextBlock.byteLength);
+            fullChunk.set(chunk, 0);
+            fullChunk.set(new Uint8Array(padCiphertextBlock), chunk.byteLength);
+            const unencrypted = await crypto.subtle.decrypt({ name: 'AES-CBC', iv: iv }, key, fullChunk);
             await writable.write(unencrypted);
             iv = lastCiphertextBlock;
             index++;
@@ -95,7 +97,7 @@ async function processFile(file, keyInput) {
         document.body.appendChild(a);
         a.click();
     } catch (e) {
-        printStatus(`<span style="color:red">Error (wrong key?): ${e.toString()}</span>`);
+        printStatus(`<span style="color:red">Error: ${e.toString()} (wrong key?)</span>`);
     }
 }
 function processFiles(files, keyInput) {
