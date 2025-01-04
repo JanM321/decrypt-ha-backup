@@ -94,7 +94,7 @@ async function processFile(file, keyInput) {
         document.body.appendChild(a);
         a.click();
     } catch (e) {
-        printStatus(`<span style="color:red">Error (wrong key?): ${e.message}</span>`);
+        printStatus(`<span style="color:red">Error (wrong key?): ${e.toString()}</span>`);
     }
 }
 function processFiles(files, keyInput) {
